@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WordPress SEO Optimizer</title>
+    <style>
+        body {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        .description {
+            white-space: pre-wrap;
+        }
+        .description p {
+            margin: 0 0 1em 0;
+        }
+        .description ul, .description ol {
+            margin: 0.5em 0;
+            padding-left: 1.5em;
+        }
+        .description li {
+            margin: 0.3em 0;
+        }
+        .description strong {
+            color: #2c3e50;
+        }
+        .description h3 {
+            margin: 1em 0 0.5em 0;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        .meta, .keywords {
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+        .comparison {
+            display: flex;
+            gap: 20px;
+        }
+        .old, .new {
+            flex: 1;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 4px;
+        }
+        .new {
+            background-color: #e8f5e9;
+        }
+        .section {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        .section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>WordPress SEO Optimizer</h1>
+    <a href="/optimize-content/" target="_blank" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px;">Start Optimization</a>
+    
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Product Name</th>
+            <th>Link</th>
+            <th>SEO Content Comparison</th>
+            <th>Status</th>
+            <th>Timestamp</th>
+        </tr>
+        {% for result in results %}
+        <tr>
+            <td>{{ result.product_id }}</td>
+            <td>{{ result.product_name }}</td>
+            <td><a href="{{ result.product_link }}" target="_blank">View Product</a></td>
+            <td>
+                <div class="comparison">
+                    <div class="old">
+                        <div class="section">
+                            <div class="section-title">Old Keywords:</div>
+                            <div class="keywords">{{ result.old_keywords or 'No keywords set' }}</div>
+                        </div>
+                        <div class="section">
+                            <div class="section-title">Old Meta Description:</div>
+                            <div class="meta">{{ result.old_meta_description or 'No meta description set' }}</div>
+                        </div>
+                        <div class="section">
+                            <div class="section-title">Old Product Description:</div>
+                            <div class="description">{{ result.old_description }}</div>
+                        </div>
+                    </div>
+                    <div class="new">
+                        <div class="section">
+                            <div class="section-title">New Keywords:</div>
+                            <div class="keywords">{{ result.keywords }}</div>
+                        </div>
+                        <div class="section">
+                            <div class="section-title">New Meta Description:</div>
+                            <div class="meta">{{ result.meta_description }}</div>
+                        </div>
+                        <div class="section">
+                            <div class="section-title">New Product Description:</div>
+                            <div class="description">{{ result.new_description }}</div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td class="{{ 'success' if result.status == 'success' else 'error' }}">{{ result.status }}</td>
+            <td>{{ result.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html> 
