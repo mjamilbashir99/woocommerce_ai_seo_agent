@@ -84,6 +84,13 @@
             margin-bottom: 8px;
             color: #333;
         }
+        .view-btn {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -98,12 +105,13 @@
             <th>SEO Content Comparison</th>
             <th>Status</th>
             <th>Timestamp</th>
+            <th>Action</th>
         </tr>
         {% for result in results %}
         <tr>
             <td>{{ result.product_id }}</td>
             <td>{{ result.product_name }}</td>
-            <td><a href="{{ result.product_link }}" target="_blank">View Product</a></td>
+            <td><a href="{{ result.product_link }}" target="_blank" class="view-btn">View Product</a></td>
             <td>
                 <div class="comparison">
                     <div class="old">
@@ -134,10 +142,38 @@
                             <div class="description">{{ result.new_description }}</div>
                         </div>
                     </div>
+                    <div class="section">
+                        <div class="section-title">Image Alt Tags:</div>
+                        <div class="comparison">
+                            <div class="old">
+                                <strong>Old Alt Tags:</strong>
+                                {% if result.old_image_alts %}
+                                    {% for num, alt in result.old_image_alts.items() %}
+                                        <div>Image {{ num }}: {{ alt or 'No alt text' }}</div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div>No image alt tags found</div>
+                                {% endif %}
+                            </div>
+                            <div class="new">
+                                <strong>New Alt Tags:</strong>
+                                {% if result.new_image_alts %}
+                                    {% for num, alt in result.new_image_alts.items() %}
+                                        <div>Image {{ num }}: {{ alt }}</div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div>No image alt tags generated</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </td>
             <td class="{{ 'success' if result.status == 'success' else 'error' }}">{{ result.status }}</td>
             <td>{{ result.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>
+                <a href="{{ result.product_link }}" target="_blank" class="view-btn">View Product</a>
+            </td>
         </tr>
         {% endfor %}
     </table>

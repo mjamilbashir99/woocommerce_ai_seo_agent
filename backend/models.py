@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional, Set
+from typing import List, Optional, Set, Dict
 from datetime import datetime
 from pathlib import Path
 import json
@@ -7,12 +7,15 @@ import json
 class OptimizationResult(BaseModel):
     product_id: int
     product_name: str
+    product_link: str
     old_description: str
     new_description: str
     old_meta_description: Optional[str] = None
     meta_description: str
     old_keywords: Optional[str] = None
     keywords: str
+    old_image_alts: Optional[Dict[str, str]] = None
+    new_image_alts: Optional[Dict[str, str]] = None
     status: str
     timestamp: datetime = datetime.now()
 

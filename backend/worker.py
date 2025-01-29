@@ -35,38 +35,55 @@ print(f"OpenAI API Key: {os.getenv('OPENAI_API_KEY')[:10]}...")  # Only print fi
 # Initialize keyword research
 keyword_research = KeywordResearch()
 
-def generate_seo_content(title: str, current_description: str, category: str = None) -> Dict:
+def generate_seo_content(title: str, current_description: str, category: str = None, images: List[Dict] = None) -> Dict:
     """Generate optimized SEO content using GPT-3.5 and keyword research"""
     
     # Get trending keywords
     suggested_keywords = keyword_research.get_keyword_suggestions(title, category)
     
+    # Add image information to the prompt if available
+    image_prompt = ""
+    if images:
+        image_prompt = "\nProduct Images:\n"
+        for img in images:
+            image_prompt += f"- {img.get('name', 'Product image')}\n"
+    
     prompt = f"""
     Analyze this product and provide SEO optimization:
     Product Title: {title}
-    Current Description: {current_description}
+    Current Description: {current_description}{image_prompt}
     Suggested Keywords: {', '.join(suggested_keywords)}
 
     Please provide:
     1. A list of 5-7 relevant keywords from the suggested keywords (comma-separated)
     2. An SEO meta description (150-160 characters)
-    3. An optimized product description (200-500 words) that:
-       - Naturally incorporates the chosen keywords
-       - Focuses on benefits and features
-       - Uses engaging, persuasive language
-       - Maintains a professional tone
-       - Includes a call to action
-       - Uses HTML formatting (<p>, <strong>, <ul>, <li> tags)
-       - Organizes content into clear sections
-       - Highlights key features and benefits
-       - Ends with a compelling call to action
-       - Targets {os.getenv('TARGET_COUNTRY', 'worldwide')} audience
+    3. An optimized product description (200-500 words)
+    4. SEO-optimized alt tags for each product image that:
+       - Describe the image content clearly
+       - Include relevant keywords naturally
+       - Are concise but descriptive (8-12 words)
+       - Consider product features and benefits
+       - Follow format: "Image [number]: [description]"
 
     Format the response exactly as:
     Keywords: [keywords here]
     Meta Description: [meta description here]
     Product Description:
     [HTML-formatted description here]
+    Image Alt Tags:
+    [numbered list of alt tags]
+    """
+
+    # Add more specific instructions to maintain existing structure
+    system_prompt = """
+    You are an expert e-commerce copywriter and SEO specialist. 
+    When optimizing product descriptions:
+    1. Keep any existing HTML structure if present
+    2. Maintain product specifications and technical details
+    3. Only enhance the marketing language and SEO aspects
+    4. Do not remove existing product features or specifications
+    5. If the original description has tables or lists, preserve them
+    6. Add new content only to enhance, not replace existing information
     """
 
     response = client.chat.completions.create(
@@ -74,7 +91,7 @@ def generate_seo_content(title: str, current_description: str, category: str = N
         messages=[
             {
                 "role": "system", 
-                "content": "You are an expert e-commerce copywriter and SEO specialist. Format product descriptions with HTML tags for better structure and emphasis."
+                "content": system_prompt
             },
             {"role": "user", "content": prompt}
         ],
@@ -93,14 +110,39 @@ def generate_seo_content(title: str, current_description: str, category: str = N
     description_parts = content.split('Product Description:')
     product_description = description_parts[1].strip() if len(description_parts) > 1 else ""
     
+    # Preserve existing description structure if it exists
+    if current_description and current_description.strip():
+        # Extract existing HTML structure
+        import re
+        existing_structure = re.findall(r'<table.*?</table>|<div.*?</div>|<ul.*?</ul>', 
+                                      current_description, re.DOTALL)
+        
+        # Combine new content with existing structure
+        if existing_structure:
+            product_description = f"{product_description}\n{''.join(existing_structure)}"
+    
     # If description doesn't start with HTML tags, wrap it in <p> tags
     if not product_description.strip().startswith('<'):
         product_description = f"<p>{product_description}</p>"
     
+    # Parse image alt tags from response
+    alt_tags = {}
+    if 'Image Alt Tags:' in content:
+        alt_section = content.split('Image Alt Tags:')[1].strip()
+        for line in alt_section.split('\n'):
+            if line.startswith('Image'):
+                try:
+                    num = line.split(':')[0].replace('Image', '').strip()
+                    desc = line.split(':', 1)[1].strip()
+                    alt_tags[num] = desc
+                except:
+                    continue
+
     return {
         'keywords': keywords,
         'meta_description': meta_description,
-        'description': product_description
+        'description': product_description,
+        'image_alt_tags': alt_tags
     }
 
 def process_optimization(wp_api: WordPressAPI, max_products: int = None, start_page: int = 1, force_update: bool = False):
@@ -146,8 +188,26 @@ def process_optimization(wp_api: WordPressAPI, max_products: int = None, start_p
                         old_meta_description = current_meta.get('_yoast_wpseo_metadesc', '')
                         old_keywords = current_meta.get('_yoast_wpseo_focuskw', '')
 
-                        # Generate optimized content
-                        seo_content = generate_seo_content(title, product['description'], product.get('category', ''))
+                        # Get current image alt tags
+                        old_image_alts = {}
+                        if 'images' in product:
+                            for idx, img in enumerate(product['images'], 1):
+                                old_image_alts[str(idx)] = img.get('alt', '')
+
+                        # Generate optimized content with images
+                        seo_content = generate_seo_content(
+                            title, 
+                            product['description'], 
+                            product.get('category', ''),
+                            product.get('images', [])
+                        )
+
+                        # Get product permalink/link
+                        product_link = product.get('permalink', '')
+                        if not product_link:
+                            # Construct link if permalink not available
+                            base_url = os.getenv("WP_BASE_URL").rstrip('/')
+                            product_link = f"{base_url}/product/{product.get('slug', '')}"
 
                         # Update product
                         update_data = {
@@ -163,18 +223,33 @@ def process_optimization(wp_api: WordPressAPI, max_products: int = None, start_p
                                 }
                             ]
                         }
+
+                        # Update product images with new alt tags
+                        if 'images' in product and seo_content.get('image_alt_tags'):
+                            updated_images = []
+                            for idx, img in enumerate(product['images'], 1):
+                                img_copy = img.copy()
+                                if str(idx) in seo_content['image_alt_tags']:
+                                    img_copy['alt'] = seo_content['image_alt_tags'][str(idx)]
+                                updated_images.append(img_copy)
+                            
+                            update_data['images'] = updated_images
+
                         wp_api.update_product(product_id, update_data)
 
-                        # Record success
+                        # Record success with image alts
                         result = OptimizationResult(
                             product_id=product_id,
                             product_name=title,
+                            product_link=product_link,
                             old_description=product['description'],
                             new_description=seo_content['description'],
                             old_meta_description=old_meta_description,
                             meta_description=seo_content['meta_description'],
                             old_keywords=old_keywords,
                             keywords=seo_content['keywords'],
+                            old_image_alts=old_image_alts,
+                            new_image_alts=seo_content.get('image_alt_tags'),
                             status="success",
                             timestamp=datetime.now()
                         )
@@ -185,10 +260,12 @@ def process_optimization(wp_api: WordPressAPI, max_products: int = None, start_p
 
                     except Exception as e:
                         print(f"Error processing product {product.get('name', '')}: {str(e)}")
-                        # Record failure
+                        # Record failure with link
+                        product_link = product.get('permalink', '') or f"{os.getenv('WP_BASE_URL').rstrip('/')}/product/{product.get('slug', '')}"
                         result = OptimizationResult(
                             product_id=product['id'],
                             product_name=product.get('name', ''),
+                            product_link=product_link,
                             old_description=product.get('description', ''),
                             new_description='',
                             meta_description='',
@@ -284,3 +361,25 @@ class OptimizationHistory:
         self.results = []
         if self.history_file.exists():
             self.history_file.unlink() 
+
+def migrate_history_entries():
+    """Add product links to existing history entries"""
+    base_url = os.getenv("WP_BASE_URL").rstrip('/')
+    
+    for result in optimization_history.results:
+        if not hasattr(result, 'product_link') or not result.product_link:
+            # Get product details to find the slug
+            try:
+                product = wp_api.get_product(result.product_id)
+                if product:
+                    result.product_link = product.get('permalink', '') or f"{base_url}/product/{product.get('slug', '')}"
+            except:
+                # If we can't get the product details, construct a basic URL
+                result.product_link = f"{base_url}/?p={result.product_id}"
+    
+    # Save the updated history
+    optimization_history.save_history()
+
+# Add this to your startup code
+if __name__ == "__main__":
+    migrate_history_entries() 
