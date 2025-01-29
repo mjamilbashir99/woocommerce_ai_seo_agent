@@ -9,16 +9,26 @@ to provide comprehensive keyword suggestions for e-commerce products.
 
 from typing import List, Dict
 import requests
-from pytrends.request import TrendReq
 import os
 from datetime import datetime, timedelta
 import time
 import json
 
+# Try to import pytrends, but make it optional
+try:
+    from pytrends.request import TrendReq
+    PYTRENDS_AVAILABLE = True
+except ImportError:
+    PYTRENDS_AVAILABLE = False
+    print("Google Trends functionality is disabled. To enable, install pytrends: pip install pytrends")
+
 class KeywordResearch:
     def __init__(self):
         self.country = os.getenv("TARGET_COUNTRY", "ALL")
-        self.use_trends = os.getenv("USE_GOOGLE_TRENDS", "true").lower() == "true"
+        self.use_trends = (
+            os.getenv("USE_GOOGLE_TRENDS", "true").lower() == "true" 
+            and PYTRENDS_AVAILABLE
+        )
         self.pytrends = TrendReq(hl='en-GB') if self.use_trends else None
         self.cache_file = "keyword_trends_cache.json"
         self.cache = self.load_cache()

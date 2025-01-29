@@ -104,115 +104,113 @@ def generate_seo_content(title: str, current_description: str, category: str = N
     }
 
 def process_optimization(wp_api: WordPressAPI, max_products: int = None, start_page: int = 1, force_update: bool = False):
-    """Process product optimization
-    
-    Args:
-        wp_api: WordPress API instance
-        max_products: Maximum number of products to process (None for all)
-        start_page: Page number to start from
-        force_update: If True, will update products even if previously processed
-    """
-    page = start_page
-    per_page = 10
-    products_processed = 0
-    processed_ids = set() if force_update else optimization_history.get_processed_ids()
+    """Process product optimization"""
+    try:
+        page = start_page
+        per_page = 10
+        products_processed = 0
+        processed_ids = set() if force_update else optimization_history.get_processed_ids()
 
-    while True:
-        try:
-            products = wp_api.get_products(per_page=per_page, page=page)
-            
-            if not products:
-                print(f"No more products found. Total processed: {products_processed}")
+        while True:
+            try:
+                products = wp_api.get_products(per_page=per_page, page=page)
+                
+                if not products:
+                    print(f"No more products found. Total processed: {products_processed}")
+                    break
+
+                for product in products:
+                    try:
+                        if max_products and products_processed >= max_products:
+                            print(f"Reached maximum products limit: {max_products}")
+                            return optimization_history.get_results()
+
+                        product_id = product['id']
+                        
+                        # Skip if already processed (unless force_update is True)
+                        if product_id in processed_ids:
+                            print(f"Skipping already processed product: {product['name']}")
+                            continue
+
+                        # Extract product info
+                        title = product['name']
+                        
+                        # Skip if already optimized recently (within last 30 days)
+                        last_updated = product.get('date_modified', '')
+                        if is_recently_optimized(last_updated):
+                            print(f"Skipping recently updated product: {title}")
+                            continue
+
+                        # Get current meta data
+                        current_meta = {item['key']: item['value'] for item in product.get('meta_data', [])}
+                        old_meta_description = current_meta.get('_yoast_wpseo_metadesc', '')
+                        old_keywords = current_meta.get('_yoast_wpseo_focuskw', '')
+
+                        # Generate optimized content
+                        seo_content = generate_seo_content(title, product['description'], product.get('category', ''))
+
+                        # Update product
+                        update_data = {
+                            'description': seo_content['description'],
+                            'meta_data': [
+                                {
+                                    'key': '_yoast_wpseo_metadesc',
+                                    'value': seo_content['meta_description']
+                                },
+                                {
+                                    'key': '_yoast_wpseo_focuskw',
+                                    'value': seo_content['keywords'].split(',')[0]
+                                }
+                            ]
+                        }
+                        wp_api.update_product(product_id, update_data)
+
+                        # Record success
+                        result = OptimizationResult(
+                            product_id=product_id,
+                            product_name=title,
+                            old_description=product['description'],
+                            new_description=seo_content['description'],
+                            old_meta_description=old_meta_description,
+                            meta_description=seo_content['meta_description'],
+                            old_keywords=old_keywords,
+                            keywords=seo_content['keywords'],
+                            status="success",
+                            timestamp=datetime.now()
+                        )
+                        optimization_history.add_result(result)
+
+                        products_processed += 1
+                        print(f"Processed {products_processed} products. Current: {title}")
+
+                    except Exception as e:
+                        print(f"Error processing product {product.get('name', '')}: {str(e)}")
+                        # Record failure
+                        result = OptimizationResult(
+                            product_id=product['id'],
+                            product_name=product.get('name', ''),
+                            old_description=product.get('description', ''),
+                            new_description='',
+                            meta_description='',
+                            keywords='',
+                            status=f"error: {str(e)}",
+                            timestamp=datetime.now()
+                        )
+                        optimization_history.add_result(result)
+                        continue
+
+                page += 1
+                
+            except Exception as e:
+                print(f"Error fetching products page {page}: {str(e)}")
                 break
 
-            for product in products:
-                try:
-                    if max_products and products_processed >= max_products:
-                        print(f"Reached maximum products limit: {max_products}")
-                        return optimization_history.get_results()
+        print(f"Optimization complete. Total products processed: {products_processed}")
+        return optimization_history.get_results()
 
-                    product_id = product['id']
-                    
-                    # Skip if already processed (unless force_update is True)
-                    if product_id in processed_ids:
-                        print(f"Skipping already processed product: {product['name']}")
-                        continue
-
-                    # Extract product info
-                    title = product['name']
-                    
-                    # Skip if already optimized recently (within last 30 days)
-                    last_updated = product.get('date_modified', '')
-                    if is_recently_optimized(last_updated):
-                        print(f"Skipping recently updated product: {title}")
-                        continue
-
-                    # Get current meta data
-                    current_meta = {item['key']: item['value'] for item in product.get('meta_data', [])}
-                    old_meta_description = current_meta.get('_yoast_wpseo_metadesc', '')
-                    old_keywords = current_meta.get('_yoast_wpseo_focuskw', '')
-
-                    # Generate optimized content
-                    seo_content = generate_seo_content(title, product['description'], product.get('category', ''))
-
-                    # Update product
-                    update_data = {
-                        'description': seo_content['description'],
-                        'meta_data': [
-                            {
-                                'key': '_yoast_wpseo_metadesc',
-                                'value': seo_content['meta_description']
-                            },
-                            {
-                                'key': '_yoast_wpseo_focuskw',
-                                'value': seo_content['keywords'].split(',')[0]
-                            }
-                        ]
-                    }
-                    wp_api.update_product(product_id, update_data)
-
-                    # Record the optimization result
-                    result = OptimizationResult(
-                        product_id=product_id,
-                        product_name=title,
-                        old_description=product['description'],
-                        new_description=seo_content['description'],
-                        old_meta_description=old_meta_description,
-                        meta_description=seo_content['meta_description'],
-                        old_keywords=old_keywords,
-                        keywords=seo_content['keywords'],
-                        status="success",
-                        timestamp=datetime.now()
-                    )
-                    optimization_history.add_result(result)
-
-                    products_processed += 1
-                    print(f"Processed {products_processed} products. Current: {title}")
-
-                except Exception as e:
-                    print(f"Error processing product {product.get('name', '')}: {str(e)}")
-                    # Record failed optimization
-                    result = OptimizationResult(
-                        product_id=product['id'],
-                        product_name=product.get('name', ''),
-                        old_description=product.get('description', ''),
-                        new_description='',
-                        meta_description='',
-                        keywords='',
-                        status=f"error: {str(e)}",
-                        timestamp=datetime.now()
-                    )
-                    optimization_history.add_result(result)
-                    continue
-
-            page += 1
-            
-        except Exception as e:
-            print(f"Error fetching products page {page}: {str(e)}")
-            break
-
-    print(f"Optimization complete. Total products processed: {products_processed}")
-    return optimization_history.get_results()
+    except Exception as e:
+        print(f"Critical error in optimization process: {str(e)}")
+        return []
 
 def is_recently_optimized(last_updated: str, days: int = 30) -> bool:
     """Check if product was optimized recently"""
@@ -251,6 +249,7 @@ class OptimizationHistory:
                     ]
             except Exception as e:
                 print(f"Error loading history: {e}")
+                self.results = []
 
     def save_history(self):
         """Save optimization history to file"""
@@ -268,12 +267,20 @@ class OptimizationHistory:
             print(f"Error saving history: {e}")
 
     def add_result(self, result: OptimizationResult):
+        """Add a new optimization result"""
         self.results.append(result)
         self.save_history()  # Save after each new result
 
     def get_results(self) -> List[OptimizationResult]:
+        """Get all optimization results"""
         return self.results
 
     def get_processed_ids(self) -> Set[int]:
         """Get set of already processed product IDs"""
-        return {r.product_id for r in self.results} 
+        return {r.product_id for r in self.results}
+
+    def clear_history(self):
+        """Clear optimization history"""
+        self.results = []
+        if self.history_file.exists():
+            self.history_file.unlink() 
