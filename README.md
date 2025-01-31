@@ -34,6 +34,30 @@ After years of experience optimizing e-commerce stores, I've built this tool to 
 
 [... rest of installation instructions remain the same ...]
 
+## Troubleshooting
+
+1. **Server Won't Start**
+- Check Python version: `python --version`
+- Verify all dependencies: `pip install -r requirements.txt`
+- Ensure .env file is properly configured
+- Check port availability
+
+2. **API Connection Issues**
+- Verify WooCommerce credentials
+- Check WordPress URL is accessible
+- Confirm API endpoints are enabled
+- Check SSL certificate if using HTTPS
+
+3. **OpenAI Errors**
+- Verify API key is valid
+- Check API rate limits
+- Monitor usage quotas
+
+4. **Pagination Issues**
+- Clear browser cache
+- Verify product count
+- Check page number validity
+
 ## Support & Contact
 
 Need help? Have suggestions? Feel free to reach out:
