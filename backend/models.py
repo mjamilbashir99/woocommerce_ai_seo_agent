@@ -7,6 +7,10 @@ import json
 class OptimizationResult(BaseModel):
     product_id: int
     product_name: str
+    new_product_name: Optional[str] = None
+    old_slug: Optional[str] = None
+    new_slug: Optional[str] = None
+    title_change_reason: Optional[str] = None
     product_link: str
     old_description: str
     new_description: str
@@ -16,8 +20,14 @@ class OptimizationResult(BaseModel):
     keywords: str
     old_image_alts: Optional[Dict[str, str]] = None
     new_image_alts: Optional[Dict[str, str]] = None
+    old_image_titles: Optional[Dict[str, str]] = None
+    new_image_titles: Optional[Dict[str, str]] = None
+    images: Optional[List[Dict]] = None
     status: str
     timestamp: datetime = datetime.now()
+
+    class Config:
+        arbitrary_types_allowed = True
 
 class OptimizationHistory:
     def __init__(self):
@@ -63,8 +73,8 @@ class OptimizationHistory:
         self.save_history()
 
     def get_results(self) -> List[OptimizationResult]:
-        """Get all optimization results"""
-        return self.results
+        """Get all optimization results in chronological order"""
+        return sorted(self.results, key=lambda x: x.timestamp)
 
     def get_processed_ids(self) -> Set[int]:
         """Get set of already processed product IDs"""

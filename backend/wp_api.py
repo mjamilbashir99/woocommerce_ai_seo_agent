@@ -27,7 +27,7 @@ class WordPressAPI:
             'page': page,
             'status': 'publish',  # Only get published products
             'orderby': 'date',    # Order by date
-            'order': 'desc'       # Newest first
+            'order': 'asc'        # Changed from 'desc' to 'asc' for oldest first
         }
         response = self.session.get(endpoint, auth=self.auth, params=params)
         response.raise_for_status()
@@ -52,4 +52,15 @@ class WordPressAPI:
             auth=self.auth
         )
         response.raise_for_status()
-        return response.json() 
+        return response.json()
+
+    def get_total_products(self) -> int:
+        """Get total number of published products"""
+        endpoint = f"{self.wc_api_base}/products"
+        params = {
+            'per_page': 1,
+            'status': 'publish'
+        }
+        response = self.session.get(endpoint, auth=self.auth, params=params)
+        total = response.headers.get('X-WP-Total')
+        return int(total) if total else 0 

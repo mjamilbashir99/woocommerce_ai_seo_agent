@@ -57,16 +57,26 @@ class KeywordResearch:
         if category:
             keywords.extend(category.lower().split())
         
-        # Add basic e-commerce modifiers
-        modifiers = ['buy', 'online', 'uk', 'shop', 'best']
+        # Add product-specific modifiers based on category
+        modifiers = ['buy', 'online', 'uk', 'shop']
+        if category:
+            category_lower = category.lower()
+            if 'clothing' in category_lower or 'fashion' in category_lower:
+                modifiers.extend(['wear', 'style', 'fashion', 'trendy', 'outfit'])
+            elif 'electronics' in category_lower:
+                modifiers.extend(['best', 'review', 'specs', 'features', 'technical'])
+            # Add more category-specific modifiers as needed
+        
         base_terms = list(set(keywords))
+        result_keywords = []
         
         for term in base_terms:
+            result_keywords.append(term)
             for mod in modifiers:
-                keywords.append(f"{mod} {term}")
-                keywords.append(f"{term} {mod}")
+                result_keywords.append(f"{mod} {term}")
+                result_keywords.append(f"{term} {mod}")
         
-        return list(set(keywords))
+        return list(set(result_keywords))
 
     def get_trending_keywords(self, product_name: str, category: str = None) -> List[Dict]:
         """Get trending keywords for a product"""
@@ -140,26 +150,60 @@ class KeywordResearch:
             print(f"Error getting trending keywords: {e}")
             return []
 
-    def get_keyword_suggestions(self, product_name: str, category: str = None) -> List[str]:
-        """Get keyword suggestions including long-tail keywords"""
-        if self.use_trends:
-            # Use Google Trends data
-            trending = self.get_trending_keywords(product_name, category)
-            base_keywords = [kw['keyword'] for kw in trending[:5]]
-        else:
-            # Use basic keyword generation
-            base_keywords = self.get_base_keywords(product_name, category)
-
-        # Generate long-tail variations
-        long_tail = []
-        modifiers = ['best', 'top', 'cheap', 'premium', 'luxury', 'affordable', 
-                    'buy', 'online', 'uk', 'shop', 'sale', 'discount']
+    def get_keyword_suggestions(self, title: str, category: str = None) -> List[str]:
+        """Get keyword suggestions with fallback options"""
+        try:
+            # Try to get trending keywords first
+            trending_keywords = self._get_trending_keywords(title)
+            if trending_keywords:
+                return trending_keywords
+        except Exception as e:
+            print(f"Error getting trending keywords: {str(e)}")
+            print("Falling back to basic keyword extraction...")
         
-        for kw in base_keywords:
-            for mod in modifiers:
-                long_tail.append(f"{mod} {kw}")
-                long_tail.append(f"{kw} {mod}")
+        # Fallback: Extract keywords from title and category
+        return self._extract_basic_keywords(title, category)
 
-        all_keywords = list(set(base_keywords + long_tail))
-        print(f"Generated {len(all_keywords)} keywords for '{product_name}' using {'Google Trends' if self.use_trends else 'basic generation'}")
-        return all_keywords
+    def _extract_basic_keywords(self, title: str, category: str = None) -> List[str]:
+        """Extract basic keywords from title and category"""
+        keywords = []
+        
+        # Clean and split title
+        title_words = title.lower().replace('-', ' ').split()
+        
+        # Remove common stop words
+        stop_words = {'and', 'or', 'the', 'a', 'an', 'in', 'on', 'at', 'for', 'to', 'of', 'with'}
+        title_words = [word for word in title_words if word not in stop_words]
+        
+        # Add individual keywords
+        keywords.extend(title_words)
+        
+        # Add 2-word combinations
+        for i in range(len(title_words) - 1):
+            keywords.append(f"{title_words[i]} {title_words[i+1]}")
+        
+        # Add category if provided
+        if category:
+            keywords.append(category.lower())
+            # Add category + main product type
+            if title_words:
+                keywords.append(f"{category.lower()} {title_words[-1]}")
+        
+        # Remove duplicates and sort
+        keywords = list(set(keywords))
+        
+        return keywords[:10]  # Return top 10 keywords
+
+    def _get_trending_keywords(self, title: str) -> List[str]:
+        """Get trending keywords if API is available"""
+        if not os.getenv('USE_GOOGLE_TRENDS', 'false').lower() == 'true':
+            return []
+            
+        try:
+            # Your existing trending keywords code
+            # If it fails, the function will return to get_keyword_suggestions
+            # which will use _extract_basic_keywords as fallback
+            pass
+        except Exception as e:
+            print(f"Trending keywords API error: {str(e)}")
+            return []

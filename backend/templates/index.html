@@ -91,78 +91,429 @@
             text-decoration: none;
             border-radius: 4px;
         }
+        .content-comparison {
+            width: 100%;
+        }
+        .content-block {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .content-block.old {
+            background-color: #f8f8f8;
+            border-left: 3px solid #e0e0e0;
+        }
+        .content-block.new {
+            background-color: #e8f5e9;
+            border-left: 3px solid #4CAF50;
+        }
+        .content-block strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .section-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #4CAF50;
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .action-btn {
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .preview-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        .preview-btn:hover {
+            background-color: #1976D2;
+        }
+        .update-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .update-btn:hover {
+            background-color: #388E3C;
+        }
+        .rendered-html {
+            padding: 15px;
+            background: white;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        .rendered-html p {
+            margin-bottom: 1em;
+            line-height: 1.6;
+        }
+        
+        .rendered-html ul, .rendered-html ol {
+            margin: 1em 0;
+            padding-left: 2em;
+        }
+        
+        .rendered-html li {
+            margin: 0.5em 0;
+        }
+        
+        .rendered-html strong {
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .image-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .image-alt {
+            font-size: 0.9em;
+            line-height: 1.4;
+            color: #666;
+        }
+        .image-meta {
+            font-size: 0.9em;
+            line-height: 1.4;
+            color: #666;
+            margin-top: 8px;
+        }
+        
+        .image-title {
+            margin-top: 4px;
+            color: #444;
+        }
+        .title {
+            font-size: 1.1em;
+            margin: 10px 0;
+            color: #333;
+        }
+        
+        .title-reason {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+        }
+        .slug {
+            font-family: monospace;
+            background: #f5f5f5;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+        
+        .optimization-reason {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            font-style: italic;
+            color: #666;
+        }
+        .pagination-controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+        
+        .status-message {
+            margin-bottom: 15px;
+        }
+        
+        .alert {
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-info {
+            background-color: #cce5ff;
+            color: #004085;
+            border: 1px solid #b8daff;
+        }
+        
+        .pagination-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .page-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background: #2196F3;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .page-btn:hover {
+            background: #1976D2;
+        }
+        
+        .page-info {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .page-jump {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .page-input {
+            width: 70px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .jump-btn {
+            padding: 5px 15px;
+            border: none;
+            border-radius: 4px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .jump-btn:hover {
+            background: #388E3C;
+        }
     </style>
 </head>
 <body>
     <h1>WordPress SEO Optimizer</h1>
-    <a href="/optimize-content/" target="_blank" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px;">Start Optimization</a>
+    <div class="button-group" style="margin-bottom: 20px;">
+        <a href="/optimize-content/?dry_run=true" class="action-btn preview-btn">
+            Start Optimization (Dry Run)
+        </a>
+        <a href="/optimize-content/?dry_run=false" class="action-btn update-btn">
+            Start Optimization (Update DB)
+        </a>
+    </div>
+    
+    <div class="pagination-controls">
+        <div class="status-message">
+            {% if products_processed is not none %}
+                <div class="alert {{ 'alert-success' if not dry_run else 'alert-info' }}">
+                    {% if background %}
+                        Processing {{ products_per_page }} products starting from page {{ current_page }}...
+                    {% endif %}
+                    <br>
+                    Total products processed: {{ products_processed }}
+                </div>
+            {% endif %}
+        </div>
+
+        <form action="/optimize-content/" method="get" class="pagination-form">
+            <input type="hidden" name="dry_run" value="{{ 'true' if dry_run else 'false' }}">
+            <input type="hidden" name="force_update" value="{{ 'true' if force_update else 'false' }}">
+            <input type="hidden" name="max_products" value="{{ products_per_page }}">
+            
+            <!-- Pagination Controls -->
+            <div class="pagination-buttons">
+                {% if current_page and current_page > 1 %}
+                    <button type="submit" name="start_page" value="{{ current_page - 1 }}" class="page-btn prev-btn">
+                        ← Previous Page
+                    </button>
+                {% endif %}
+                
+                <span class="page-info">
+                    Page {{ current_page }} of {{ total_pages }}
+                    ({{ total_products }} total products)
+                </span>
+                
+                {% if current_page and current_page < total_pages %}
+                    <button type="submit" name="start_page" value="{{ current_page + 1 }}" class="page-btn next-btn">
+                        Next Page →
+                    </button>
+                {% endif %}
+            </div>
+
+            <!-- Page Jump Controls -->
+            <div class="page-jump">
+                <label for="start_page">Jump to Page:</label>
+                <input type="number" id="start_page" name="start_page" 
+                       value="{{ current_page }}" 
+                       min="1" 
+                       max="{{ total_pages }}"
+                       class="page-input">
+                <button type="submit" class="jump-btn">Go</button>
+            </div>
+        </form>
+    </div>
     
     <table>
         <tr>
-            <th>ID</th>
+            
             <th>Product Name</th>
-            <th>Link</th>
             <th>SEO Content Comparison</th>
+            
             <th>Status</th>
-            <th>Timestamp</th>
-            <th>Action</th>
         </tr>
         {% for result in results %}
         <tr>
-            <td>{{ result.product_id }}</td>
-            <td>{{ result.product_name }}</td>
-            <td><a href="{{ result.product_link }}" target="_blank" class="view-btn">View Product</a></td>
+            <td> 
+                <a href="{{ result.product_link }}" target="_blank">{{result.product_name}}</a>
+            </td>
             <td>
-                <div class="comparison">
-                    <div class="old">
-                        <div class="section">
-                            <div class="section-title">Old Keywords:</div>
+                <div class="content-comparison">
+                    <!-- Product Title -->
+                    <div class="section">
+                        <div class="section-title">Product Title & URL</div>
+                        <div class="content-block old">
+                            <strong>Current Title:</strong>
+                            <div class="title">{{ result.product_name }}</div>
+                            <strong>Current URL Slug:</strong>
+                            <div class="slug">{{ result.old_slug }}</div>
+                        </div>
+                        <div class="content-block new">
+                            <strong>Optimized Title:</strong>
+                            <div class="title">{{ result.new_product_name }}</div>
+                            <strong>Optimized URL Slug:</strong>
+                            <div class="slug">{{ result.new_slug }}</div>
+                            <div class="optimization-reason">
+                                <strong>Optimization Strategy:</strong> {{ result.title_change_reason }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Keywords -->
+                    <div class="section">
+                        <div class="section-title">Keywords</div>
+                        <div class="content-block old">
+                            <strong>Old Keywords:</strong>
                             <div class="keywords">{{ result.old_keywords or 'No keywords set' }}</div>
                         </div>
-                        <div class="section">
-                            <div class="section-title">Old Meta Description:</div>
-                            <div class="meta">{{ result.old_meta_description or 'No meta description set' }}</div>
-                        </div>
-                        <div class="section">
-                            <div class="section-title">Old Product Description:</div>
-                            <div class="description">{{ result.old_description }}</div>
-                        </div>
-                    </div>
-                    <div class="new">
-                        <div class="section">
-                            <div class="section-title">New Keywords:</div>
+                        <div class="content-block new">
+                            <strong>New Keywords:</strong>
                             <div class="keywords">{{ result.keywords }}</div>
                         </div>
-                        <div class="section">
-                            <div class="section-title">New Meta Description:</div>
+                    </div>
+
+                    <!-- Meta Description -->
+                    <div class="section">
+                        <div class="section-title">Meta Description</div>
+                        <div class="content-block old">
+                            <strong>Old Meta Description:</strong>
+                            <div class="meta">{{ result.old_meta_description or 'No meta description set' }}</div>
+                        </div>
+                        <div class="content-block new">
+                            <strong>New Meta Description:</strong>
                             <div class="meta">{{ result.meta_description }}</div>
                         </div>
-                        <div class="section">
-                            <div class="section-title">New Product Description:</div>
-                            <div class="description">{{ result.new_description }}</div>
+                    </div>
+
+                    <!-- Product Description -->
+                    <div class="section">
+                        <div class="section-title">Product Description</div>
+                        <div class="content-block old">
+                            <strong>Old Product Description:</strong>
+                            <div class="description rendered-html">
+                                {{ result.old_description | safe }}
+                            </div>
+                        </div>
+                        <div class="content-block new">
+                            <strong>New Product Description:</strong>
+                            <div class="description rendered-html">
+                                {{ result.new_description | safe }}
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Product Images & Alt Tags -->
                     <div class="section">
-                        <div class="section-title">Image Alt Tags:</div>
-                        <div class="comparison">
-                            <div class="old">
-                                <strong>Old Alt Tags:</strong>
-                                {% if result.old_image_alts %}
+                        <div class="section-title">Product Images & Alt Tags</div>
+                        <div class="content-block old">
+                            <strong>Current Images & Alt Tags:</strong>
+                            <div class="image-grid">
+                                {% if result.old_image_alts and result.images %}
                                     {% for num, alt in result.old_image_alts.items() %}
-                                        <div>Image {{ num }}: {{ alt or 'No alt text' }}</div>
+                                        {% set image_index = (num|int - 1) %}
+                                        {% if image_index < result.images|length %}
+                                            <div class="image-item">
+                                                <img src="{{ result.images[image_index].src }}" 
+                                                     alt="{{ alt or 'No alt text' }}"
+                                                     title="{{ result.old_image_titles[num] or 'No title' }}" 
+                                                     class="product-image">
+                                                <div class="image-meta">
+                                                    <div class="image-alt">Alt: {{ alt or 'No alt text' }}</div>
+                                                    <div class="image-title">Title: {{ result.old_image_titles[num] or 'No title' }}</div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
                                     {% endfor %}
                                 {% else %}
-                                    <div>No image alt tags found</div>
+                                    <div>No images found</div>
                                 {% endif %}
                             </div>
-                            <div class="new">
-                                <strong>New Alt Tags:</strong>
-                                {% if result.new_image_alts %}
+                        </div>
+                        <div class="content-block new">
+                            <strong>New Alt Tags & Titles:</strong>
+                            <div class="image-grid">
+                                {% if result.new_image_alts and result.images %}
                                     {% for num, alt in result.new_image_alts.items() %}
-                                        <div>Image {{ num }}: {{ alt }}</div>
+                                        {% set image_index = (num|int - 1) %}
+                                        {% if image_index < result.images|length %}
+                                            <div class="image-item">
+                                                <img src="{{ result.images[image_index].src }}" 
+                                                     alt="{{ alt }}"
+                                                     title="{{ result.new_image_titles[num] }}" 
+                                                     class="product-image">
+                                                <div class="image-meta">
+                                                    <div class="image-alt">Alt: {{ alt }}</div>
+                                                    <div class="image-title">Title: {{ result.new_image_titles[num] }}</div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
                                     {% endfor %}
                                 {% else %}
-                                    <div>No image alt tags generated</div>
+                                    <div>No alt tags generated</div>
                                 {% endif %}
                             </div>
                         </div>
@@ -170,12 +521,14 @@
                 </div>
             </td>
             <td class="{{ 'success' if result.status == 'success' else 'error' }}">{{ result.status }}</td>
-            <td>{{ result.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-            <td>
-                <a href="{{ result.product_link }}" target="_blank" class="view-btn">View Product</a>
-            </td>
         </tr>
         {% endfor %}
     </table>
+    
+    <div class="pagination-info">
+        {% if products_processed %}
+            <p>Showing products {{ (current_page-1) * products_per_page + 1 }} to {{ (current_page-1) * products_per_page + products_processed }}</p>
+        {% endif %}
+    </div>
 </body>
 </html> 
