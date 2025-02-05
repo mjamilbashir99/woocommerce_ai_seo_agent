@@ -32,7 +32,7 @@ After years of experience optimizing e-commerce stores, I've built this tool to 
 
 ## Installation
 
-[... rest of installation instructions remain the same ...]
+Enable WooCommerce Rest API and get API details from there and use in the .evn file
 
 ## Troubleshooting
 
